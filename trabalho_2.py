@@ -1,24 +1,22 @@
 import pandas as pd
+import numpy as np
+from sklearn import hmm
 
-# df_censo_2019 = pd.read_csv(f"microdados_censo_escolar_2019/2019/dados/microdados_ed_basica_2019.csv", sep=";", encoding="latin-1", error_bad_lines=False, low_memory=False)
-# df_censo_2020 = pd.read_csv(f"microdados_censo_escolar_2020/2020/dados/microdados_ed_basica_2020.CSV", sep=";", encoding="latin-1", error_bad_lines=False, low_memory=False)
-# df_censo_2021 = pd.read_csv(f"microdados_censo_escolar_2021/2021/dados/microdados_ed_basica_2021.csv", sep=";", encoding="latin-1", error_bad_lines=False, low_memory=False)
-df_encceja_2020 = pd.read_csv(f"/home/alecy/Documents/datasets/microdados_encceja_2020/DADOS/MICRODADOS_ENCCEJA_NACIONAL_PPL_2020.csv", sep=",", encoding="latin-1", error_bad_lines=False, low_memory=False)
+
+df_encceja_2020 = pd.read_csv(f"/home/alecy/Documents/datasets/microdados_encceja_2020/DADOS/MICRODADOS_ENCCEJA_NACIONAL_REGULAR_2020.csv", sep=",", encoding="latin-1", error_bad_lines=False, low_memory=False)
 
 # Filtro por alunos que estiverem presentes na prova
-df_encceja_2020.loc[df_encceja_2020["TP_PRESENCA_LC"] == 1]
-df_encceja_2020.loc[df_encceja_2020["TP_PRESENCA_MT"] == 1]
-df_encceja_2020.loc[df_encceja_2020["TP_PRESENCA_CN"] == 1]
-df_encceja_2020.loc[df_encceja_2020["TP_PRESENCA_CH"] == 1]
+df_encceja_2020 = df_encceja_2020.loc[df_encceja_2020["TP_PRESENCA_LC"] == 1]
+df_encceja_2020 = df_encceja_2020.loc[df_encceja_2020["TP_PRESENCA_MT"] == 1]
+df_encceja_2020 = df_encceja_2020.loc[df_encceja_2020["TP_PRESENCA_CN"] == 1]
+df_encceja_2020 = df_encceja_2020.loc[df_encceja_2020["TP_PRESENCA_CH"] == 1]
 
 # Filtro alunos que não tiveram problema com a redação
-df_encceja_2020.loc[df_encceja_2020["TP_STATUS_REDACAO"] == 1]
+df_encceja_2020 = df_encceja_2020.loc[df_encceja_2020["TP_STATUS_REDACAO"] == 1]
 
 # Eliminando colunas não necessárias
 df_encceja_2020 = df_encceja_2020.drop([
     "TP_CERTIFICACAO", 
-    "TP_FAIXA_ETARIA", 
-    "TP_SEXO", 
     "IN_PROVA_LC",
     "IN_PROVA_MT", 
     "IN_PROVA_CN", 
@@ -40,11 +38,50 @@ df_encceja_2020 = df_encceja_2020.drop([
     "NU_NOTA_COMP3",
     "NU_NOTA_COMP4",
     "NU_NOTA_COMP5",
+    "SG_UF_PROVA",
+    "NO_ENTIDADE_CERTIFICADORA",
+    "TP_PRESENCA_LC",
+    "TP_PRESENCA_MT",
+    "TP_PRESENCA_CN",
+    "TP_PRESENCA_CH",
+    "NU_ANO",
+    "TP_STATUS_REDACAO",
 ], axis=1)
 
-# df = pd.concat([df_censo_2019, df_censo_2020, df_censo_2021])
+# Criar coluna de média
+df_encceja_2020["MEDIA_NOTA"] = (df_encceja_2020["NU_NOTA_LC"] + df_encceja_2020["NU_NOTA_MT"] + df_encceja_2020["NU_NOTA_CN"] + df_encceja_2020["NU_NOTA_CH"] + df_encceja_2020["NU_NOTA_REDACAO"])/5
+
+# Criar coluna de aprovação
+df_encceja_2020["APROVADO"] = np.where((df_encceja_2020["IN_APROVADO_LC"] + df_encceja_2020["IN_APROVADO_MT"] + df_encceja_2020["IN_APROVADO_CN"] + df_encceja_2020["IN_APROVADO_CH"] == 4.0), 1, 0)
+
+# Deletar colunas utilizadas para o cálculo
+# Eliminando colunas não necessárias
+df_encceja_2020 = df_encceja_2020.drop([
+    "NU_NOTA_LC", 
+    "NU_NOTA_MT",
+    "NU_NOTA_CN", 
+    "NU_NOTA_CH", 
+    "NU_NOTA_REDACAO",
+    "IN_APROVADO_LC",
+    "IN_APROVADO_MT",
+    "IN_APROVADO_CN",
+    "IN_APROVADO_CH",
+], axis=1)
 
 for column in df_encceja_2020.columns:
     print(column, df_encceja_2020.dtypes[column])
+
+print(df_encceja_2020.head(10))
+
+# Substituir Nan por 0
+df_encceja_2020 = df_encceja_2020.fillna("Q")
+
+print(df_encceja_2020.head(10))
+
+
+# Convertendo colunas de letras para números
+for column in df_encceja_2020.columns:
+    if df_encceja_2020.dtypes[column] == "object":
+        df_encceja_2020[column] = [ ord(x) for x in df_encceja_2020[column] ]
 
 print(df_encceja_2020.head(10))
