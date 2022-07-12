@@ -1,6 +1,11 @@
+from re import X
 import pandas as pd
 import numpy as np
-from sklearn import hmm
+import seaborn as sns
+import sklearn
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
 
 
 df_encceja_2020 = pd.read_csv(f"/home/alecy/Documents/datasets/microdados_encceja_2020/DADOS/MICRODADOS_ENCCEJA_NACIONAL_REGULAR_2020.csv", sep=",", encoding="latin-1", error_bad_lines=False, low_memory=False)
@@ -68,15 +73,10 @@ df_encceja_2020 = df_encceja_2020.drop([
     "IN_APROVADO_CH",
 ], axis=1)
 
-for column in df_encceja_2020.columns:
-    print(column, df_encceja_2020.dtypes[column])
-
-print(df_encceja_2020.head(10))
-
-# Substituir Nan por 0
+# Substituir Nan por Q
 df_encceja_2020 = df_encceja_2020.fillna("Q")
 
-print(df_encceja_2020.head(10))
+# print(df_encceja_2020.head(10))
 
 
 # Convertendo colunas de letras para números
@@ -84,4 +84,35 @@ for column in df_encceja_2020.columns:
     if df_encceja_2020.dtypes[column] == "object":
         df_encceja_2020[column] = [ ord(x) for x in df_encceja_2020[column] ]
 
-print(df_encceja_2020.head(10))
+# print(df_encceja_2020.head(10))
+
+# print(df_encceja_2020[["Q02", "APROVADO"]].value_counts())
+# print(df_encceja_2020[["Q04", "APROVADO"]].value_counts())
+# print(df_encceja_2020[["Q52", "APROVADO"]].value_counts())
+# print(df_encceja_2020[["Q57", "APROVADO"]].value_counts())
+# print(df_encceja_2020[["Q58", "APROVADO"]].value_counts())
+
+# sns.displot(df_encceja_2020["APROVADO"])
+
+X = df_encceja_2020[["TP_FAIXA_ETARIA", "TP_SEXO", "CO_UF_PROVA", "Q01", "Q02", "Q03", "Q04", "Q05", "Q06", "Q21", "Q33", "Q34", "Q35", "Q36", "Q37",
+                    "Q38", "Q39", "Q40", "Q41", "Q42", "Q43", "Q44", "Q45", "Q46", "Q48", "Q49", "Q50", "Q51", "Q52", "Q53", "Q54", "Q55", "Q56", "Q57", "Q58"]]
+
+y = df_encceja_2020["MEDIA_NOTA"]
+
+# Dividindo o dataset entre teste e treino
+X_train, X_test, Y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state=101)
+
+# Criando o modelo
+lm = LinearRegression()
+lm.fit(X_train, Y_train)
+
+# Previsão
+predictions = lm.predict(X_test)
+
+print(metrics.mean_absolute_error(y_test, predictions))
+print(metrics.mean_squared_error(y_test, predictions))
+print(np.sqrt(metrics.mean_absolute_error(y_test, predictions)))
+
+
+
+
