@@ -84,15 +84,6 @@ for column in df_encceja_2020.columns:
     if df_encceja_2020.dtypes[column] == "object":
         df_encceja_2020[column] = [ ord(x) for x in df_encceja_2020[column] ]
 
-# print(df_encceja_2020.head(10))
-
-# print(df_encceja_2020[["Q02", "APROVADO"]].value_counts())
-# print(df_encceja_2020[["Q04", "APROVADO"]].value_counts())
-# print(df_encceja_2020[["Q52", "APROVADO"]].value_counts())
-# print(df_encceja_2020[["Q57", "APROVADO"]].value_counts())
-# print(df_encceja_2020[["Q58", "APROVADO"]].value_counts())
-
-# sns.displot(df_encceja_2020["APROVADO"])
 
 X = df_encceja_2020[["TP_FAIXA_ETARIA", "TP_SEXO", "CO_UF_PROVA", "Q01", "Q02", "Q03", "Q04", "Q05", "Q06", "Q21", "Q33", "Q34", "Q35", "Q36", "Q37",
                     "Q38", "Q39", "Q40", "Q41", "Q42", "Q43", "Q44", "Q45", "Q46", "Q48", "Q49", "Q50", "Q51", "Q52", "Q53", "Q54", "Q55", "Q56", "Q57", "Q58"]]
